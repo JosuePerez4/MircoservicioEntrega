@@ -1,0 +1,12 @@
+# Ignorar dependencias de React
+frontend-entrega/node_modules/
+frontend-entrega/dist/
+
+# Ignorar compilados de Java
+backend/target/
+backend/.mvn/
+backend/.idea/
+*.class
+
+# Ignorar archivos de sistema
+.DS_Store
