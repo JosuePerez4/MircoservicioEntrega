@@ -1,14 +1,17 @@
 package com.taller.entrega;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ClienteCreadoEvent {
-    private Long idCliente;
+    @JsonProperty("cliente_id")
+    private String clienteId;
     private String nombre;
     private String email;
 
     public ClienteCreadoEvent() {}
 
-    public Long getIdCliente() { return idCliente; }
-    public void setIdCliente(Long idCliente) { this.idCliente = idCliente; }
+    public String getClienteId() { return clienteId; }
+    public void setClienteId(String clienteId) { this.clienteId = clienteId; }
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     public String getEmail() { return email; }
