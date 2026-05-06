@@ -36,4 +36,37 @@ public class EntregaService {
                 envioCreadoEvent);
         System.out.println("Evento publicado: envio.bienvenida.creado");
     }
+
+    @RabbitListener(queues = RabbitMQConfig.QUEUE_ENTREGA_ESTADO)
+    public void procesarEnvioEnviado(EnvioEstadoActualizadoEvent evento) {
+        if (!"ENVIADO".equalsIgnoreCase(evento.getEstado())) {
+            System.out.println("Evento de estado ignorado: " + evento.getEstado());
+            return;
+        }
+
+        Long envioId = Long.valueOf(evento.getEnvioId());
+        Envio envio = envioRepository.findById(envioId)
+                .orElseThrow(() -> new IllegalArgumentException("Envio no encontrado: " + envioId));
+
+        envio.setEstado("ENVIADO");
+        envioRepository.save(envio);
+        System.out.println("Envio actualizado a ENVIADO: " + envioId);
+
+        envio.setEstado("LEIDO");
+        Envio envioLeido = envioRepository.save(envio);
+        System.out.println("Envio actualizado a LEIDO: " + envioId);
+
+        EnvioEstadoActualizadoEvent leidoEvent = new EnvioEstadoActualizadoEvent(
+                String.valueOf(envioLeido.getId()),
+                evento.getClienteId(),
+                envioLeido.getEstado(),
+                evento.getEmail(),
+                evento.getNombre());
+
+        rabbitTemplate.convertAndSend(
+                RabbitMQConfig.EXCHANGE_CLIENTES,
+                RabbitMQConfig.ROUTING_KEY_ENVIO_BIENVENIDA_LEIDO,
+                leidoEvent);
+        System.out.println("Evento publicado: envio.bienvenida.leido");
+    }
 }

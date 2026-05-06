@@ -12,8 +12,11 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
     public static final String EXCHANGE_CLIENTES = "cliente-events-exchange";
     public static final String QUEUE_ENTREGA = "entrega-queue";
+    public static final String QUEUE_ENTREGA_ESTADO = "entrega-estado-queue";
     public static final String ROUTING_KEY_CLIENTE_CREADO = "cliente.creado";
     public static final String ROUTING_KEY_ENVIO_BIENVENIDA_CREADO = "envio.bienvenida.creado";
+    public static final String ROUTING_KEY_ENVIO_BIENVENIDA_ENVIADO = "envio.bienvenida.enviado";
+    public static final String ROUTING_KEY_ENVIO_BIENVENIDA_LEIDO = "envio.bienvenida.leido";
 
     @Bean
     public TopicExchange clienteExchange() {
@@ -26,8 +29,21 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding binding(Queue entregaQueue, TopicExchange clienteExchange) {
+    public Queue entregaEstadoQueue() {
+        return new Queue(QUEUE_ENTREGA_ESTADO, true, false, false);
+    }
+
+    @Bean
+    public Binding clienteCreadoBinding(Queue entregaQueue, TopicExchange clienteExchange) {
         return BindingBuilder.bind(entregaQueue).to(clienteExchange).with(ROUTING_KEY_CLIENTE_CREADO);
+    }
+
+    @Bean
+    public Binding envioEnviadoBinding(Queue entregaEstadoQueue, TopicExchange clienteExchange) {
+        return BindingBuilder
+                .bind(entregaEstadoQueue)
+                .to(clienteExchange)
+                .with(ROUTING_KEY_ENVIO_BIENVENIDA_ENVIADO);
     }
 
     @Bean
